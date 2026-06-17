@@ -1,3 +1,8 @@
 {
-  "installCommand": "npm install --omit=dev"
+  "installCommand": "npm install --omit=dev",
+  "functions": {
+    "app.js": {
+      "includeFiles": "public/**"
+    }
+  }
 }

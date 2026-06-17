@@ -45,13 +45,11 @@ function validateUserId(userId) {
 }
 
 const app = express();
+const publicDir = path.join(__dirname, 'public');
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
-
-if (!process.env.VERCEL) {
-  app.use(express.static(path.join(__dirname, 'public')));
-}
+app.use(express.static(publicDir));
 
 app.get('/api/health', (_req, res) => {
   const configured = Boolean(
