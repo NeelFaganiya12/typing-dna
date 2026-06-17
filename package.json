@@ -1,0 +1,20 @@
+{
+  "name": "typingdna-research-oracle",
+  "version": "1.0.0",
+  "description": "Grey-box research testbed for server-side behavioral biometrics (TypingDNA)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "crawler:baseline": "node scripts/playwright-baseline.js",
+    "crawler:enroll": "node scripts/playwright-enroll.js",
+    "crawler:mutate": "node scripts/playwright-mutate.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.1"
+  }
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypingDNA Research Oracle</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/vendor/typingdna.js"></script>
+</head>
+<body>
+  <header>
+    <h1>TypingDNA Research Oracle</h1>
+    <p class="subtitle">Grey-box testbed for server-side behavioral biometrics</p>
+    <div id="status-badge" class="badge badge-pending">Checking API…</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1. Session setup</h2>
+      <label for="userId">User ID <span class="hint">(min 6 chars, use a pseudonym)</span></label>
+      <input type="text" id="userId" value="research_user_01" minlength="6" maxlength="256">
+
+      <label for="phrase">SameText phrase <span class="hint">(enrollment &amp; verification must match)</span></label>
+      <input type="text" id="phrase" value="your typing biometrics are unique" readonly>
+
+      <div class="row">
+        <label for="patternType">Pattern type</label>
+        <select id="patternType">
+          <option value="1">Type 1 — SameText (diagram)</option>
+          <option value="2" selected>Type 2 — Extended (recommended)</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Capture typing</h2>
+      <p class="hint">Type the phrase below naturally. The TypingDNA recorder captures keystroke timing.</p>
+      <label for="typingInput">Type here</label>
+      <input type="text" id="typingInput" autocomplete="off" spellcheck="false" placeholder="Start typing the phrase…">
+
+      <div class="button-row">
+        <button type="button" id="btnReset">Reset recorder</button>
+        <button type="button" id="btnCapture">Capture pattern</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Send to server oracle</h2>
+      <p class="hint">
+        <strong>Auto</strong> enrolls the first 3 patterns, then verifies.
+        Use <strong>Verify</strong> after enrollment to test score variance.
+      </p>
+      <div class="button-row">
+        <button type="button" id="btnAuto" class="primary">Auto (enroll / verify)</button>
+        <button type="button" id="btnSave">Save (enroll only)</button>
+        <button type="button" id="btnVerify">Verify</button>
+        <button type="button" id="btnUser">Check user</button>
+        <button type="button" id="btnDelete" class="danger">Delete user</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4. Inject mutated pattern <span class="hint">(grey-box testing)</span></h2>
+      <p class="hint">Paste a modified typing pattern (<code>tp</code>) and verify without re-typing.</p>
+      <label for="injectedPattern">Typing pattern (tp)</label>
+      <textarea id="injectedPattern" rows="4" placeholder="Paste a captured or mutated tp string here…"></textarea>
+      <div class="button-row">
+        <button type="button" id="btnInjectVerify">Verify injected pattern</button>
+        <button type="button" id="btnCopyPattern">Copy captured pattern</button>
+      </div>
+    </section>
+
+    <section class="card results">
+      <h2>Results</h2>
+      <div id="scoreDisplay" class="score-display hidden">
+        <div class="score-value" id="scoreValue">—</div>
+        <div class="score-label">confidence score (0–100)</div>
+        <div class="score-meta">
+          <span id="resultBadge" class="badge">—</span>
+          <span id="actionLabel"></span>
+        </div>
+      </div>
+      <pre id="responseOutput">No API call yet.</pre>
+    </section>
+
+    <section class="card">
+      <h2>Captured pattern</h2>
+      <pre id="patternOutput">Type in the field above, then click "Capture pattern".</pre>
+    </section>
+  </main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
