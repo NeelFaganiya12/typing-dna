@@ -9,6 +9,7 @@ const els = {
   patternType: document.getElementById('patternType'),
   typingInput: document.getElementById('typingInput'),
   patternOutput: document.getElementById('patternOutput'),
+  timingStats: document.getElementById('timingStats'),
   injectedPattern: document.getElementById('injectedPattern'),
   responseOutput: document.getElementById('responseOutput'),
   scoreDisplay: document.getElementById('scoreDisplay'),
@@ -41,6 +42,93 @@ function getUserId() {
   return els.userId.value.trim();
 }
 
+function median(values) {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+function decodePatternTimings(pattern, patternType) {
+  const segments = pattern.split('|').slice(1);
+  if (!segments.length) return null;
+
+  const keystrokes = segments.map((segment) => {
+    const parts = segment.split(',').map(Number);
+    if (patternType === 2 && parts.length >= 4) {
+      return {
+        char: String.fromCharCode(parts[0]),
+        seek: parts[1],
+        dwell: parts[2],
+      };
+    }
+    if (parts.length >= 2) {
+      return { char: '?', seek: parts[0], dwell: parts[1] };
+    }
+    return null;
+  }).filter(Boolean);
+
+  if (!keystrokes.length) return null;
+
+  const dwells = keystrokes.map((k) => k.dwell);
+  const seeks = keystrokes.slice(1).map((k) => k.seek);
+  const flights = [];
+  for (let i = 0; i < keystrokes.length - 1; i++) {
+    flights.push(keystrokes[i + 1].seek - keystrokes[i].dwell);
+  }
+  const positiveFlights = flights.filter((f) => f > 0);
+
+  return {
+    keystrokes,
+    dwell: {
+      median: Math.round(median(dwells)),
+      mean: Math.round(dwells.reduce((a, b) => a + b, 0) / dwells.length),
+      min: Math.min(...dwells),
+      max: Math.max(...dwells),
+    },
+    flight: {
+      median: Math.round(median(positiveFlights)),
+      mean: positiveFlights.length
+        ? Math.round(positiveFlights.reduce((a, b) => a + b, 0) / positiveFlights.length)
+        : 0,
+    },
+    seek: {
+      median: Math.round(median(seeks)),
+    },
+    overlapCount: flights.filter((f) => f <= 0).length,
+    recommended: {
+      dwellMs: Math.round(median(dwells)),
+      flightMs: Math.round(median(positiveFlights)) || Math.round(median(seeks)),
+    },
+  };
+}
+
+function showTimingStats(pattern, patternType) {
+  const stats = decodePatternTimings(pattern, patternType);
+  if (!stats) {
+    els.timingStats.classList.add('hidden');
+    return;
+  }
+
+  els.timingStats.classList.remove('hidden');
+  els.timingStats.innerHTML = `
+    <dl>
+      <div><dt>Dwell (median)</dt><dd>${stats.dwell.median} ms</dd></div>
+      <div><dt>Dwell (mean)</dt><dd>${stats.dwell.mean} ms</dd></div>
+      <div><dt>Dwell (range)</dt><dd>${stats.dwell.min}–${stats.dwell.max} ms</dd></div>
+      <div><dt>Flight (median)</dt><dd>${stats.flight.median} ms</dd></div>
+      <div><dt>Seek (median)</dt><dd>${stats.seek.median} ms</dd></div>
+      <div><dt>Key overlap</dt><dd>${stats.overlapCount} keys</dd></div>
+    </dl>
+    <p class="hint-line">
+      Suggested crawler settings:
+      <strong>DWELL_MS=${stats.recommended.dwellMs}</strong>
+      <strong>FLIGHT_MS=${stats.recommended.flightMs}</strong>
+      · Dwell = key hold time · Flight ≈ gap after release before next key
+    </p>
+  `;
+}
+
 function capturePattern() {
   const type = Number(els.patternType.value);
   const text = els.phrase.value;
@@ -57,6 +145,8 @@ function capturePattern() {
   lastCapturedPattern = pattern;
   els.patternOutput.textContent = pattern || '(empty — type the full phrase first)';
   els.injectedPattern.value = pattern;
+  if (pattern) showTimingStats(pattern, type);
+  else els.timingStats.classList.add('hidden');
   return pattern;
 }
 
@@ -105,6 +195,7 @@ document.getElementById('btnReset').addEventListener('click', () => {
   tdna.reset();
   els.typingInput.value = '';
   els.patternOutput.textContent = 'Recorder reset. Type the phrase again.';
+  els.timingStats.classList.add('hidden');
 });
 
 document.getElementById('btnCapture').addEventListener('click', () => {

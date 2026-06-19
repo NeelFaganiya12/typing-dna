@@ -198,6 +198,44 @@ button.danger:hover {
   flex-wrap: wrap;
 }
 
+.timing-stats {
+  margin-bottom: 0.85rem;
+  padding: 0.85rem;
+  background: #0f1419;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.timing-stats.hidden {
+  display: none;
+}
+
+.timing-stats dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.timing-stats dt {
+  color: #8b9cb3;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.timing-stats dd {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+.timing-stats .hint-line {
+  margin: 0.75rem 0 0;
+  color: #8b9cb3;
+  font-size: 0.8rem;
+}
+
 pre {
   margin: 0;
   padding: 0.85rem;
